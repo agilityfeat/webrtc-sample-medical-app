@@ -15,6 +15,8 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" rel="stylesheet">
 
+	<script src="/socket.io/socket.io.js"></script>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -83,8 +85,8 @@
             <img src="images/doctor.jpg">
           </div>
           <div class="doc-text">
-            <span class="name">Dr. Arin will see you now!</span>
-            <span class="specialty">Specialty: <strong>Snakebites</strong></span>
+            <span id="doctorNameDisplay" class="name">The Doctor will see you now!</span>
+            <span id="doctorSpecialtyDisplay" class="specialty"></span>
             <button id="callDoctor" class="input-styled" type="button">Call the doc</button>
           </div>
         </div>
@@ -100,8 +102,8 @@
 		<div id="doctorSignupForm">
           <form class="form-inline">
             <div class="form-group">
-              <input class="input-styled" type="text" class="form-control" id="" value="Your Name">
-              <input class="input-styled" type="text" class="form-control" id="" value="Your Specialty">
+              <input class="input-styled" type="text" class="form-control" id="doctorName" value="Your Name">
+              <input class="input-styled" type="text" class="form-control" id="doctorSpecialty" value="Your Specialty">
               <button id="doctorSignupButton" class="input-styled" type="button">Wait for Patient</button>
             </div>
           </form>

@@ -18,12 +18,15 @@ var videoPageDiv = document.querySelector("#videoPage");
 
 //Variable declarations for other controls used on the signup pages and necessary for app flow
 var enterAsPatient = document.querySelector("#enterAsPatient");
+var patientName = document.querySelector("#patientName");
 var requestDoctor = document.querySelector("#requestDoctor");
 var requestDoctorForm = document.querySelector("#requestDoctorForm");
 var waitingForDoctor = document.querySelector("#waitingForDoctor");
 var waitingForDoctorProgress = document.querySelector("#waitingForDoctorProgress");
 var doctorSignupForm = document.querySelector("#doctorSignupForm");
 var doctorSignupButton = document.querySelector("#doctorSignupButton");
+var doctorName = document.querySelector("#doctorName");
+var doctorSpecialty = document.querySelector("#doctorSpecialty");
 var waitingForPatient = document.querySelector("#waitingForPatient");
 var doctorListing = document.querySelector("#doctorListing");
 var callDoctor = document.querySelector("#callDoctor");
@@ -36,6 +39,7 @@ enterAsPatient.addEventListener('click', function(ev){
 	doctorSignupDiv.style.display = 'none';
 	videoPageDiv.style.display = 'none';
 	
+	myUserType = "patient";
 	requestDoctorForm.style.display = 'block';
 	waitingForDoctor.style.display = 'none';
 	doctorListing.style.display = 'none';
@@ -50,16 +54,12 @@ requestDoctor.addEventListener('click', function(ev){
 	requestDoctorForm.style.display = 'none';
 	waitingForDoctor.style.display = 'block';
 	doctorListing.style.display = 'none';
-	ev.preventDefault();
-}, false);
-
-//This code should be removed, it is only for clickable prototype purposes
-//This allows you to click on the patient progress bar and advance to the 
-//video screen without a doctor.
-waitingForDoctorProgress.addEventListener('click', function(ev){
-	requestDoctorForm.style.display = 'none';
-	waitingForDoctor.style.display = 'none';
-	doctorListing.style.display = 'block';
+	
+	//The patient joins the signaling room in socket.io
+	patientUserName = patientName.value || 'no name';
+	io.emit('signal', {"chat_room": ROOM, "user_type": "patient", "user_name": patientUserName, "user_data": "no data, just a patient", "command": "joinroom"});
+	console.log("patient " + patientUserName + " has joined " + ROOM);
+	
 	ev.preventDefault();
 }, false);
 
@@ -70,6 +70,7 @@ enterAsDoctor.addEventListener('click', function(ev){
 	doctorSignupDiv.style.display = 'block';
 	videoPageDiv.style.display = 'none';
 	
+	myUserType = "doctor";
 	doctorSignupForm.style.display = 'block';
 	waitingForPatient.style.display = 'none';
 	ev.preventDefault();
@@ -79,6 +80,12 @@ enterAsDoctor.addEventListener('click', function(ev){
 doctorSignupButton.addEventListener('click', function(ev){
 	doctorSignupForm.style.display = 'none';
 	waitingForPatient.style.display = 'block';
+	
+	//The doctor joins the signaling room in socket.io
+	doctorUserName = doctorName.value || 'no name';
+	io.emit('signal', {"chat_room": ROOM, "user_type": "doctor", "user_name": doctorUserName, "user_data": doctorSpecialty.value, "command": "joinroom"});
+	console.log("Dr. " + doctorUserName + " has joined " + ROOM);
+	
 	ev.preventDefault();
 }, false);
 
@@ -88,6 +95,12 @@ callDoctor.addEventListener('click', function(ev){
 	landingPageDiv.style.display = 'none';
 	patientEntryDiv.style.display = 'none';
 	videoPageDiv.style.display = 'block';
+	
+	//Send a signal that the patient is calling
+	patientUserName = patientName.value || 'no name';
+	io.emit('signal', {"chat_room": ROOM, "user_type": "patient", "user_name": patientUserName, "user_data": "calling doctor", "command": "calldoctor"});
+	console.log("patient " + patientUserName + " is calling.");
+	
 	ev.preventDefault();
 }, false);
 
