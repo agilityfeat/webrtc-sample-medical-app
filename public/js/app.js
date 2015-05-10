@@ -57,6 +57,7 @@ requestDoctor.addEventListener('click', function(ev){
 	
 	//The patient joins the signaling room in socket.io
 	patientUserName = patientName.value || 'no name';
+	myName = patientUserName;
 	io.emit('signal', {"user_type": "patient", "user_name": patientUserName, "user_data": "no data, just a patient", "command": "joinroom"});
 	console.log("patient " + patientUserName + " has joined " + ROOM);
 	
@@ -83,6 +84,7 @@ doctorSignupButton.addEventListener('click', function(ev){
 	
 	//The doctor joins the signaling room in socket.io
 	doctorUserName = doctorName.value || 'no name';
+	myName = doctorUserName;
 	io.emit('signal', {"user_type": "doctor", "user_name": doctorUserName, "user_data": doctorSpecialty.value, "command": "joinroom"});
 	console.log("Dr. " + doctorUserName + " has joined " + ROOM);
 	
@@ -97,9 +99,8 @@ callDoctor.addEventListener('click', function(ev){
 	videoPageDiv.style.display = 'block';
 	
 	//Send a signal that the patient is calling
-	patientUserName = patientName.value || 'no name';
-	io.emit('signal', {"user_type": "patient", "user_name": patientUserName, "user_data": "calling doctor", "command": "calldoctor"});
-	console.log("patient " + patientUserName + " is calling.");
+	io.emit('signal', {"user_type": "patient", "user_name": myName, "user_data": "calling doctor", "command": "calldoctor"});
+	console.log("patient " + myName + " is calling.");
 	
 	//Kick off the WebRTC signaling
 	//Setup the RTC Peer Connection object

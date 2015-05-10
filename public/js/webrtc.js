@@ -21,10 +21,18 @@ var configuration = {
 var rtcPeerConn;
 var mainVideoArea = document.querySelector("#mainVideoTag");
 var smallVideoArea = document.querySelector("#smallVideoTag");
+var myName = "";
+var theirName = "";
+var myUserType = ""; 
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
 		console.log("The doctor is here!");
+		if (myUserType == "patient") {
+			theirName = data.user_name;
+			document.querySelector("#messageOutName").textContent = theirName;
+			document.querySelector("#messageInName").textContent = myName;
+		}
 		//Switch to the doctor listing
 		document.querySelector("#requestDoctorForm").style.display = 'none';
 		document.querySelector("#waitingForDoctor").style.display = 'none';
@@ -32,8 +40,14 @@ io.on('signal', function(data) {
 	}
 	else if (data.user_type == "patient" && data.command == "calldoctor") {
 		console.log("Patient is calling");
+		if (myUserType == "doctor") {
+			theirName = data.user_name;
+			document.querySelector("#messageOutName").textContent = theirName;
+			document.querySelector("#messageInName").textContent = myName;
+		}
 		document.querySelector("#doctorSignup").style.display = 'none';
 		document.querySelector("#videoPage").style.display = 'block';
+		console.log("writing out their name " + theirName);
 	}
 	else if (data.user_type == 'signaling') {
 		if (!rtcPeerConn) startSignaling();
