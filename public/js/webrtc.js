@@ -96,6 +96,7 @@ function startSignaling() {
 		'video': true
 	}, function (stream) {
 		console.log("going to display my stream...");
+		console.log("my stream id: " + stream.streamid);
 		smallVideoArea.src = URL.createObjectURL(stream);
 		rtcPeerConn.addStream(stream);
 	}, logError);
@@ -112,7 +113,39 @@ function sendLocalDesc(desc) {
 function logError(error) {
 }
 
+//////////MUTE/PAUSE STREAMS CODE////////////
+var muteMyself = document.querySelector("#muteMyself");
+var pauseMyVideo = document.querySelector("#pauseMyVideo");
 
+muteMyself.addEventListener('click', function(ev){
+	console.log("muting/unmuting myself");
+	var streams = rtcPeerConn.getLocalStreams();
+	for (var stream of streams) {
+		for (var audioTrack of stream.getAudioTracks()) {
+			console.log("muting a stream...");
+			if (audioTrack.enabled) { muteMyself.innerHTML = "Unmute" }
+			else { muteMyself.innerHTML = "Mute Myself" }
+			audioTrack.enabled = !audioTrack.enabled;
+		}
+		console.log("Local stream: " + stream.id);
+	}
+	ev.preventDefault();
+}, false);
+
+pauseMyVideo.addEventListener('click', function(ev){
+	console.log("pausing/unpausing my video");
+	var streams = rtcPeerConn.getLocalStreams();
+	for (var stream of streams) {
+		for (var videoTrack of stream.getVideoTracks()) {
+			console.log("pausing a video stream...");
+			if (videoTrack.enabled) { pauseMyVideo.innerHTML = "Start Video" }
+			else { pauseMyVideo.innerHTML = "Pause Video" }
+			videoTrack.enabled = !videoTrack.enabled;
+		}
+		console.log("Local stream: " + stream.id);
+	}
+	ev.preventDefault();
+}, false);
 
 
 
