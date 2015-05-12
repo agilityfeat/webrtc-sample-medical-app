@@ -24,6 +24,11 @@ var smallVideoArea = document.querySelector("#smallVideoTag");
 var myName = "";
 var theirName = "";
 var myUserType = ""; 
+var dataChannelOptions = {
+	ordered: false, //no guaranteed delivery, unreliable but faster 
+	maxRetransmitTime: 1000, //milliseconds
+};
+var dataChannel;
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
@@ -40,6 +45,7 @@ io.on('signal', function(data) {
 	}
 	else if (data.user_type == "patient" && data.command == "calldoctor") {
 		console.log("Patient is calling");
+		if (!rtcPeerConn) startSignaling();
 		if (myUserType == "doctor") {
 			theirName = data.user_name;
 			document.querySelector("#messageOutName").textContent = theirName;
@@ -68,7 +74,11 @@ io.on('signal', function(data) {
 
 function startSignaling() {
 	console.log("starting signaling...");
-	rtcPeerConn = new webkitRTCPeerConnection(configuration);
+	rtcPeerConn = new webkitRTCPeerConnection(configuration); //, null);
+	dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
+				
+	dataChannel.onopen = dataChannelStateChanged;
+	rtcPeerConn.ondatachannel = receiveDataChannel;
 	
 	// send any ice candidates to the other peer
 	rtcPeerConn.onicecandidate = function (evt) {
@@ -147,6 +157,29 @@ pauseMyVideo.addEventListener('click', function(ev){
 	ev.preventDefault();
 }, false);
 
+/////////////Data Channels Code///////////
+var myMessage = document.querySelector("#myMessage");
+var sendMessage = document.querySelector("#sendMessage");
 
+function dataChannelStateChanged() {
+	if (dataChannel.readyState === 'open') {
+		console.log("Data Channel open");
+		dataChannel.onmessage = receiveDataChannelMessage;
+	}
+}
 
+function receiveDataChannel(event) {
+	console.log("Receiving a data channel");
+	dataChannel = event.channel;
+	dataChannel.onmessage = receiveDataChannelMessage;
+}
+
+function receiveDataChannelMessage(event) {
+	console.log("From DataChannel: " + event.data);
+}
+
+sendMessage.addEventListener('click', function(ev){
+	dataChannel.send(myMessage.value);
+	ev.preventDefault();
+}, false);
 
