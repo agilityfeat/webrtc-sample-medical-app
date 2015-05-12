@@ -158,6 +158,7 @@ pauseMyVideo.addEventListener('click', function(ev){
 }, false);
 
 /////////////Data Channels Code///////////
+var messageHolder = document.querySelector("#messageHolder");
 var myMessage = document.querySelector("#myMessage");
 var sendMessage = document.querySelector("#sendMessage");
 
@@ -176,10 +177,20 @@ function receiveDataChannel(event) {
 
 function receiveDataChannelMessage(event) {
 	console.log("From DataChannel: " + event.data);
+	appendChatMessage(event.data, 'message-out');
 }
 
 sendMessage.addEventListener('click', function(ev){
 	dataChannel.send(myMessage.value);
+	appendChatMessage(myMessage.value, 'message-in');
+	myMessage.value = "";
 	ev.preventDefault();
 }, false);
+
+function appendChatMessage(msg, className) {
+	var div = document.createElement('div');
+	div.className = className;
+	div.innerHTML = '<span>' + msg + '</span>';
+	messageHolder.appendChild(div);
+}
 
