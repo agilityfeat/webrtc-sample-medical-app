@@ -139,16 +139,16 @@
             <a class="input-styled" href="javascript:void(0)" style="display: none;">Share Screen</a>
           </div>
 
-          <form class="send-file form-inline">
-            <div class="form-group">
-              <input class="input-styled" type="text" class="form-control" id="" value="File">
-              <button class="input-styled" type="button">Send File</button>
+		  
+            <div class="form-group" style="margin: 0 auto;">
+			  <input type="file" id="sendFile" style="margin: 0 auto;" /><br/>
+			  <progress id="fileProgress" value=“1” max="100"></progress><br/>
+			  <a id="receivedFileLink"></a><br/>
             </div>
-          </form>
   
           <form class="send-message form-inline">
             <div class="form-group">
-              <input id="myMessage" class="input-styled" type="text" class="form-control" id="" value="">
+              <input id="myMessage" class="input-styled" type="text" class="form-control">
               <button id="sendMessage" class="input-styled" type="button">Send Message</button>
             </div>
           </form>

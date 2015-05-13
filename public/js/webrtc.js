@@ -102,7 +102,7 @@ function startSignaling() {
 	// get a local stream, show it in our video tag and add it to be sent
 	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 	navigator.getUserMedia({
-		'audio': true,
+		'audio': false,
 		'video': true
 	}, function (stream) {
 		console.log("going to display my stream...");
@@ -161,6 +161,11 @@ pauseMyVideo.addEventListener('click', function(ev){
 var messageHolder = document.querySelector("#messageHolder");
 var myMessage = document.querySelector("#myMessage");
 var sendMessage = document.querySelector("#sendMessage");
+var receivedFileName;
+var receivedFileSize;
+var fileBuffer = [];
+var fileSize = 0;
+var fileTransferring = false;
 
 function dataChannelStateChanged() {
 	if (dataChannel.readyState === 'open') {
@@ -177,7 +182,36 @@ function receiveDataChannel(event) {
 
 function receiveDataChannelMessage(event) {
 	console.log("From DataChannel: " + event.data);
-	appendChatMessage(event.data, 'message-out');
+	if (fileTransferring) {
+		//Now here is the file handling code:
+		fileBuffer.push(event.data);
+		fileSize += event.data.byteLength;
+		fileProgress.value = fileSize;
+				
+		//Provide link to downloadable file when complete
+		if (fileSize === receivedFileSize) {
+			var received = new window.Blob(fileBuffer);
+			fileBuffer = [];
+
+			downloadLink.href = URL.createObjectURL(received);
+			downloadLink.download = receivedFileName;
+			downloadLink.appendChild(document.createTextNode(receivedFileName + "(" + fileSize + ") bytes"));
+			fileTransferring = false;
+			
+			//Also put the file in the text chat area
+			var linkTag = document.createElement('a');
+			linkTag.href = URL.createObjectURL(received);
+			linkTag.download = receivedFileName;
+			linkTag.appendChild(document.createTextNode(receivedFileName));
+			var div = document.createElement('div');
+			div.className = 'message-out';
+			div.appendChild(linkTag);
+			messageHolder.appendChild(div);
+		}
+	}
+	else {
+		appendChatMessage(event.data, 'message-out');
+	}
 }
 
 sendMessage.addEventListener('click', function(ev){
@@ -194,3 +228,41 @@ function appendChatMessage(msg, className) {
 	messageHolder.appendChild(div);
 }
 
+/////////////File Transfer///////////
+var sendFile = document.querySelector("input#sendFile");
+var fileProgress = document.querySelector("progress#fileProgress");
+var downloadLink = document.querySelector('a#receivedFileLink');
+
+io.on('files', function(data) {
+	receivedFileName = data.filename;
+	receivedFileSize = data.filesize;
+	console.log("File on it's way is " + receivedFileName + " (" + receivedFileSize + ")");
+	fileTransferring = true;
+});
+
+sendFile.addEventListener('change', function(ev){
+	var file = sendFile.files[0];
+	console.log("sending file " + file.name + " (" + file.size + ") ...");
+	io.emit('files',{"filename":file.name, "filesize":file.size});
+	appendChatMessage("sending " + file.name, 'message-in');
+	fileTransferring = true;
+						
+	fileProgress.max = file.size;
+	var chunkSize = 16384;
+	var sliceFile = function(offset) {
+		var reader = new window.FileReader();
+		reader.onload = (function() {
+			return function(e) {
+				dataChannel.send(e.target.result);
+				if (file.size > offset + e.target.result.byteLength) {
+					window.setTimeout(sliceFile, 0, offset + chunkSize);
+				}
+				fileProgress.value = offset + e.target.result.byteLength;
+			};
+		})(file);
+		var slice = file.slice(offset, offset + chunkSize);
+		reader.readAsArrayBuffer(slice);
+	};
+	sliceFile(0);
+	fileTransferring = false;
+}, false);

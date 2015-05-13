@@ -26,11 +26,19 @@ app.get('/', function(req, res){
 app.listen(process.env.PORT || PORT);
 
 app.io.route('signal', function(req) {
-    req.io.join(req.data)
+    req.io.join(req.data);
+	req.io.join('files');
     app.io.room(req.data).broadcast('signal', {
 		user_type: req.data.user_type,
 		user_name: req.data.user_name,
 		user_data: req.data.user_data,
 		command: req.data.command
     })
+})
+
+app.io.route('files', function(req) {
+	req.io.room('files').broadcast('files', {
+		filename: req.data.filename,
+		filesize: req.data.filesize
+	});
 })
