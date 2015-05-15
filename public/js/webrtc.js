@@ -271,7 +271,7 @@ sendFile.addEventListener('change', function(ev){
 var shareMyScreen = document.querySelector("#shareMyScreen");
 shareMyScreen.addEventListener('click', function(ev){
 	var msg = "Sharing my screen...";
-	dataChannel.send(msg);
+	//dataChannel.send(msg);
 	appendChatMessage(msg, 'message-in');
 	
     getScreenMedia(function (err, stream) {
