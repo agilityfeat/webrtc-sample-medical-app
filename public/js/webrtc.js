@@ -266,3 +266,22 @@ sendFile.addEventListener('change', function(ev){
 	sliceFile(0);
 	fileTransferring = false;
 }, false);
+
+/////////////Share My Screen///////////
+var shareMyScreen = document.querySelector("#shareMyScreen");
+shareMyScreen.addEventListener('click', function(ev){
+	var msg = "Sharing my screen...";
+	dataChannel.send(msg);
+	appendChatMessage(msg, 'message-in');
+	
+    getScreenMedia(function (err, stream) {
+        if (err) {
+           console.log('failed: ' + err);
+        } else {
+           console.log('got a stream', stream);  
+		   smallVideoTag.src = URL.createObjectURL(stream);
+        }
+    });
+	
+	ev.preventDefault();
+}, false);
