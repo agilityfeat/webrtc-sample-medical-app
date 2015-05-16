@@ -34,6 +34,11 @@ var signalingArea = document.querySelector("#signalingArea");
 function displayMessage(message) {
 	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
 }
+function holdOn() {
+	window.setTimeout(function () {
+	    displayMessage("hold on");
+	}, 500);
+}
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
@@ -70,11 +75,13 @@ io.on('signal', function(data) {
 				// if we received an offer, we need to answer
 				if (rtcPeerConn.remoteDescription.type == 'offer') {
 					displayMessage("Sending an answer");
+					holdOn();
 					rtcPeerConn.createAnswer(sendLocalDesc, logError);
 				}
 			}, logError);
 		}
 		else {
+			holdOn();
 			rtcPeerConn.addIceCandidate(new RTCIceCandidate(message.candidate));
 		}
 	}
@@ -91,6 +98,7 @@ function startSignaling() {
 	
 	// send any ice candidates to the other peer
 	rtcPeerConn.onicecandidate = function (evt) {
+		holdOn();
 		if (evt.candidate)
 			io.emit('signal',{"user_type":"signaling", "command":"icecandidate", "user_data": JSON.stringify({ 'candidate': evt.candidate })});
 		console.log("completed sending an ice candidate...");
@@ -99,6 +107,7 @@ function startSignaling() {
 	
 	// let the 'negotiationneeded' event trigger offer generation
 	rtcPeerConn.onnegotiationneeded = function () {
+		holdOn();
 		console.log("on negotiation called");
 		displayMessage("on negotiation called");
 		rtcPeerConn.createOffer(sendLocalDesc, logError);
@@ -106,6 +115,7 @@ function startSignaling() {
 	
 	// once remote stream arrives, show it in the main video element
 	rtcPeerConn.onaddstream = function (evt) {
+		holdOn();
 		console.log("going to add their stream...");
 		displayMessage("going to add their stream...");
 		mainVideoArea.src = URL.createObjectURL(evt.stream);
@@ -117,6 +127,7 @@ function startSignaling() {
 		'audio': false,
 		'video': true
 	}, function (stream) {
+		holdOn();
 		console.log("going to display my stream...");
 		displayMessage("going to display my stream...");
 		console.log("my stream id: " + stream.streamid);
@@ -127,6 +138,7 @@ function startSignaling() {
 }
 
 function sendLocalDesc(desc) {
+	holdOn();
 	rtcPeerConn.setLocalDescription(desc, function () {
 		console.log("sending local description");
 		displayMessage("sending local description");
