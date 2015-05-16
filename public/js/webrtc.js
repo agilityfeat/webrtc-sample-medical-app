@@ -290,13 +290,13 @@ shareMyScreen.addEventListener('click', function(ev){
 	        }
 	    });
 		
-		shareMyScreen.innerHTML == stopShareScreenText;
+		shareMyScreen.innerHTML = stopShareScreenText;
 	}
 	else {
 		console.log("Resetting my stream to video...");
 		smallVideoTag.src = URL.createObjectURL(myVideoStreamRef);
 		rtcPeerConn.addStream(myVideoStreamRef);
-		shareMyScreen.innerHTML == shareScreenText;
+		shareMyScreen.innerHTML = shareScreenText;
 	}
 	
 	ev.preventDefault();
