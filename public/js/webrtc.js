@@ -33,6 +33,7 @@ var dataChannel;
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
 		console.log("The doctor is here!");
+		displayMessage("The doctor is here!");
 		if (myUserType == "patient") {
 			theirName = data.user_name;
 			document.querySelector("#messageOutName").textContent = theirName;
@@ -45,6 +46,7 @@ io.on('signal', function(data) {
 	}
 	else if (data.user_type == "patient" && data.command == "calldoctor") {
 		console.log("Patient is calling");
+		displayMessage("Patient is calling");
 		if (!rtcPeerConn) startSignaling();
 		if (myUserType == "doctor") {
 			theirName = data.user_name;
@@ -62,6 +64,7 @@ io.on('signal', function(data) {
 			rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
 				// if we received an offer, we need to answer
 				if (rtcPeerConn.remoteDescription.type == 'offer') {
+					displayMessage("Sending an answer");
 					rtcPeerConn.createAnswer(sendLocalDesc, logError);
 				}
 			}, logError);
@@ -74,6 +77,7 @@ io.on('signal', function(data) {
 
 function startSignaling() {
 	console.log("starting signaling...");
+	displayMessage("starting signaling...");
 	rtcPeerConn = new webkitRTCPeerConnection(configuration); //, null);
 	dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
 				
@@ -85,17 +89,20 @@ function startSignaling() {
 		if (evt.candidate)
 			io.emit('signal',{"user_type":"signaling", "command":"icecandidate", "user_data": JSON.stringify({ 'candidate': evt.candidate })});
 		console.log("completed sending an ice candidate...");
+		displayMessage("completed sending an ice candidate...");
 	};
 	
 	// let the 'negotiationneeded' event trigger offer generation
 	rtcPeerConn.onnegotiationneeded = function () {
 		console.log("on negotiation called");
+		displayMessage("on negotiation called");
 		rtcPeerConn.createOffer(sendLocalDesc, logError);
 	};
 	
 	// once remote stream arrives, show it in the main video element
 	rtcPeerConn.onaddstream = function (evt) {
 		console.log("going to add their stream...");
+		displayMessage("going to add their stream...");
 		mainVideoArea.src = URL.createObjectURL(evt.stream);
 	};
 	
@@ -106,6 +113,7 @@ function startSignaling() {
 		'video': true
 	}, function (stream) {
 		console.log("going to display my stream...");
+		displayMessage("going to display my stream...");
 		console.log("my stream id: " + stream.streamid);
 		smallVideoArea.src = URL.createObjectURL(stream);
 		rtcPeerConn.addStream(stream);
@@ -116,6 +124,7 @@ function startSignaling() {
 function sendLocalDesc(desc) {
 	rtcPeerConn.setLocalDescription(desc, function () {
 		console.log("sending local description");
+		displayMessage("sending local description");
 		io.emit('signal',{"user_type":"signaling", "command":"SDP", "user_data": JSON.stringify({ 'sdp': rtcPeerConn.localDescription })});
 	}, logError);
 }
@@ -286,3 +295,8 @@ shareMyScreen.addEventListener('click', function(ev){
 	
 	ev.preventDefault();
 }, false);
+
+var signalingArea = document.querySelector("#signalingArea");
+function displaySignalMessage(message) {
+	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
+}
