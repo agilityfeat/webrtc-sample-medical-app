@@ -29,11 +29,7 @@ var dataChannelOptions = {
 	maxRetransmitTime: 1000, //milliseconds
 };
 var dataChannel;
-
-var signalingArea = document.querySelector("#signalingArea");
-function displayMessage(message) {
-	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
-} 
+var myVideoStreamRef;
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
@@ -113,6 +109,7 @@ function startSignaling() {
 		'video': true
 	}, function (stream) {
 		console.log("going to display my stream...");
+		myVideoStreamRef = stream;
 		smallVideoArea.src = URL.createObjectURL(stream);
 		rtcPeerConn.addStream(stream);
 	}, logError);
@@ -276,19 +273,31 @@ sendFile.addEventListener('change', function(ev){
 /////////////Share My Screen///////////
 var shareMyScreen = document.querySelector("#shareMyScreen");
 shareMyScreen.addEventListener('click', function(ev){
-	var msg = "Sharing my screen...";
-	dataChannel.send(msg);
-	appendChatMessage(msg, 'message-in');
+	shareScreenText = "Share Screen";
+	stopShareScreenText = "Stop Sharing";
+	console.log("Screen share button text: " + shareMyScreen.innerHTML)
+	if (shareMyScreen.innerHTML == shareScreenText) {
+		var msg = "Sharing my screen...";
+		appendChatMessage(msg, 'message-in');
 	
-    getScreenMedia(function (err, stream) {
-        if (err) {
-           console.log('failed: ' + err);
-        } else {
-           console.log('got a stream', stream);  
-		   smallVideoTag.src = URL.createObjectURL(stream);
-		   rtcPeerConn.addStream(stream);
-        }
-    });
+	    getScreenMedia(function (err, stream) {
+	        if (err) {
+	           console.log('failed: ' + err);
+	        } else {
+	           console.log('got a stream', stream);  
+			   smallVideoTag.src = URL.createObjectURL(stream);
+			   rtcPeerConn.addStream(stream);
+	        }
+	    });
+		
+		shareMyScreen.innerHTML == stopShareScreenText;
+	}
+	else {
+		console.log("Resetting my stream to video...");
+		smallVideoTag.src = URL.createObjectURL(myVideoStreamRef);
+		rtcPeerConn.addStream(myVideoStreamRef);
+		shareMyScreen.innerHTML == shareScreenText;
+	}
 	
 	ev.preventDefault();
 }, false);
