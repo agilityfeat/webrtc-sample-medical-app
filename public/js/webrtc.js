@@ -33,23 +33,11 @@ var dataChannel;
 var signalingArea = document.querySelector("#signalingArea");
 function displayMessage(message) {
 	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
-}
-function holdOn() {
-	
-}
-function holdOnLonger() {
-	displayMessage("hold on longer");
-	//pausecomp(2000);
-}
-function pausecomp(ms) {
-ms += new Date().getTime();
-while (new Date() < ms){}
 } 
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
 		console.log("The doctor is here!");
-		displayMessage("The doctor is here!");
 		if (myUserType == "patient") {
 			theirName = data.user_name;
 			document.querySelector("#messageOutName").textContent = theirName;
@@ -61,9 +49,7 @@ io.on('signal', function(data) {
 		document.querySelector("#doctorListing").style.display = 'block';
 	}
 	else if (data.user_type == "patient" && data.command == "calldoctor") {
-		holdOnLonger();
 		console.log("Patient is calling");
-		displayMessage("Patient is calling");
 		if (!rtcPeerConn) startSignaling();
 		if (myUserType == "doctor") {
 			theirName = data.user_name;
@@ -81,14 +67,11 @@ io.on('signal', function(data) {
 			rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
 				// if we received an offer, we need to answer
 				if (rtcPeerConn.remoteDescription.type == 'offer' && myUserType == "doctor") {
-					displayMessage("Sending an answer");
-					holdOn();
 					rtcPeerConn.createAnswer(sendLocalDesc, logError);
 				}
 			}, logError);
 		}
 		else {
-			holdOn();
 			rtcPeerConn.addIceCandidate(new RTCIceCandidate(message.candidate));
 		}
 	}
@@ -96,7 +79,6 @@ io.on('signal', function(data) {
 
 function startSignaling() {
 	console.log("starting signaling...");
-	displayMessage("starting signaling...");
 	rtcPeerConn = new webkitRTCPeerConnection(configuration); //, null);
 	dataChannel = rtcPeerConn.createDataChannel('textMessages', dataChannelOptions);
 				
@@ -105,18 +87,14 @@ function startSignaling() {
 	
 	// send any ice candidates to the other peer
 	rtcPeerConn.onicecandidate = function (evt) {
-		holdOn();
 		if (evt.candidate)
 			io.emit('signal',{"user_type":"signaling", "command":"icecandidate", "user_data": JSON.stringify({ 'candidate': evt.candidate })});
 		console.log("completed sending an ice candidate...");
-		displayMessage("completed sending an ice candidate...");
 	};
 	
 	// let the 'negotiationneeded' event trigger offer generation
 	rtcPeerConn.onnegotiationneeded = function () {
-		holdOn();
 		console.log("on negotiation called");
-		displayMessage("on negotiation called");
 		if (myUserType == "patient") {
 			rtcPeerConn.createOffer(sendLocalDesc, logError);
 		}
@@ -124,9 +102,7 @@ function startSignaling() {
 	
 	// once remote stream arrives, show it in the main video element
 	rtcPeerConn.onaddstream = function (evt) {
-		holdOn();
 		console.log("going to add their stream...");
-		displayMessage("going to add their stream...");
 		mainVideoArea.src = URL.createObjectURL(evt.stream);
 	};
 	
@@ -136,10 +112,7 @@ function startSignaling() {
 		'audio': false,
 		'video': true
 	}, function (stream) {
-		holdOn();
 		console.log("going to display my stream...");
-		displayMessage("going to display my stream...");
-		console.log("my stream id: " + stream.streamid);
 		smallVideoArea.src = URL.createObjectURL(stream);
 		rtcPeerConn.addStream(stream);
 	}, logError);
@@ -147,17 +120,13 @@ function startSignaling() {
 }
 
 function sendLocalDesc(desc) {
-	holdOn();
 	rtcPeerConn.setLocalDescription(desc, function () {
 		console.log("sending local description");
-		displayMessage("sending local description");
 		io.emit('signal',{"user_type":"signaling", "command":"SDP", "user_data": JSON.stringify({ 'sdp': rtcPeerConn.localDescription })});
 	}, logError);
 }
 			
 function logError(error) {
-	displayMessage(error);
-	console.log(error);
 }
 
 //////////MUTE/PAUSE STREAMS CODE////////////
@@ -308,7 +277,7 @@ sendFile.addEventListener('change', function(ev){
 var shareMyScreen = document.querySelector("#shareMyScreen");
 shareMyScreen.addEventListener('click', function(ev){
 	var msg = "Sharing my screen...";
-	//dataChannel.send(msg);
+	dataChannel.send(msg);
 	appendChatMessage(msg, 'message-in');
 	
     getScreenMedia(function (err, stream) {
