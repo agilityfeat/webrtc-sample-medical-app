@@ -36,8 +36,13 @@ function displayMessage(message) {
 }
 function holdOn() {
 	window.setTimeout(function () {
-	    displayMessage("hold on");
-	}, 500);
+	    //displayMessage("hold on");
+	}, 50);
+}
+function holdOnLonger() {
+	window.setTimeout(function () {
+	    displayMessage("hold on longer");
+	}, 2000);
 }
 
 io.on('signal', function(data) {
@@ -55,6 +60,7 @@ io.on('signal', function(data) {
 		document.querySelector("#doctorListing").style.display = 'block';
 	}
 	else if (data.user_type == "patient" && data.command == "calldoctor") {
+		holdOnLonger();
 		console.log("Patient is calling");
 		displayMessage("Patient is calling");
 		if (!rtcPeerConn) startSignaling();
@@ -147,6 +153,8 @@ function sendLocalDesc(desc) {
 }
 			
 function logError(error) {
+	displayMessage(error.name + ': ' + error.message);
+	console.log(error.name + ': ' + error.message);
 }
 
 //////////MUTE/PAUSE STREAMS CODE////////////
