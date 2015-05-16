@@ -40,10 +40,13 @@ function holdOn() {
 	}, 50);
 }
 function holdOnLonger() {
-	window.setTimeout(function () {
-	    displayMessage("hold on longer");
-	}, 2000);
+	displayMessage("hold on longer");
+	pausecomp(2000);
 }
+function pausecomp(ms) {
+ms += new Date().getTime();
+while (new Date() < ms){}
+} 
 
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
