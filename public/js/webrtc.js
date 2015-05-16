@@ -153,8 +153,8 @@ function sendLocalDesc(desc) {
 }
 			
 function logError(error) {
-	displayMessage(error.name + ': ' + error.message);
-	console.log(error.name + ': ' + error.message);
+	displayMessage(error);
+	console.log(error);
 }
 
 //////////MUTE/PAUSE STREAMS CODE////////////
