@@ -35,13 +35,11 @@ function displayMessage(message) {
 	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
 }
 function holdOn() {
-	window.setTimeout(function () {
-	    //displayMessage("hold on");
-	}, 50);
+	
 }
 function holdOnLonger() {
 	displayMessage("hold on longer");
-	pausecomp(2000);
+	//pausecomp(2000);
 }
 function pausecomp(ms) {
 ms += new Date().getTime();
