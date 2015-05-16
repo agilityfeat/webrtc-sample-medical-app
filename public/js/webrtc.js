@@ -31,7 +31,7 @@ var dataChannelOptions = {
 var dataChannel;
 
 var signalingArea = document.querySelector("#signalingArea");
-function displaySignalMessage(message) {
+function displayMessage(message) {
 	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
 }
 
