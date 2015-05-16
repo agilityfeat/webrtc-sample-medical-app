@@ -30,6 +30,11 @@ var dataChannelOptions = {
 };
 var dataChannel;
 
+var signalingArea = document.querySelector("#signalingArea");
+function displaySignalMessage(message) {
+	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
+}
+
 io.on('signal', function(data) {
 	if (data.user_type == "doctor" && data.command == "joinroom") {
 		console.log("The doctor is here!");
@@ -296,7 +301,3 @@ shareMyScreen.addEventListener('click', function(ev){
 	ev.preventDefault();
 }, false);
 
-var signalingArea = document.querySelector("#signalingArea");
-function displaySignalMessage(message) {
-	signalingArea.innerHTML = signalingArea.innerHTML + "<br/>" + message;
-}
