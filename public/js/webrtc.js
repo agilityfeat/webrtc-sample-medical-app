@@ -294,8 +294,19 @@ shareMyScreen.addEventListener('click', function(ev){
 	}
 	else {
 		console.log("Resetting my stream to video...");
-		smallVideoTag.src = URL.createObjectURL(myVideoStreamRef);
-		rtcPeerConn.addStream(myVideoStreamRef);
+		
+		// get a local stream, show it in our video tag and add it to be sent
+		navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+		navigator.getUserMedia({
+			'audio': false,
+			'video': true
+		}, function (stream) {
+			console.log("going to display my stream...");
+			myVideoStreamRef = stream;
+			smallVideoArea.src = URL.createObjectURL(stream);
+			rtcPeerConn.addStream(stream);
+		}, logError);
+		
 		shareMyScreen.innerHTML = shareScreenText;
 	}
 	
