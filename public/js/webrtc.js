@@ -280,6 +280,7 @@ shareMyScreen.addEventListener('click', function(ev){
         } else {
            console.log('got a stream', stream);  
 		   smallVideoTag.src = URL.createObjectURL(stream);
+		   rtcPeerConn.addStream(stream);
         }
     });
 	
