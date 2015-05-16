@@ -82,7 +82,7 @@ io.on('signal', function(data) {
 		if (message.sdp) {
 			rtcPeerConn.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
 				// if we received an offer, we need to answer
-				if (rtcPeerConn.remoteDescription.type == 'offer') {
+				if (rtcPeerConn.remoteDescription.type == 'offer' && myUserType == "doctor") {
 					displayMessage("Sending an answer");
 					holdOn();
 					rtcPeerConn.createAnswer(sendLocalDesc, logError);
@@ -119,7 +119,9 @@ function startSignaling() {
 		holdOn();
 		console.log("on negotiation called");
 		displayMessage("on negotiation called");
-		rtcPeerConn.createOffer(sendLocalDesc, logError);
+		if (myUserType == "patient") {
+			rtcPeerConn.createOffer(sendLocalDesc, logError);
+		}
 	};
 	
 	// once remote stream arrives, show it in the main video element
